@@ -1,4 +1,4 @@
-# TOR Companion Auto Equip v0.2.0
+# TOR Companion Auto Equip v0.2.1
 
 Target: Mount & Blade II: Bannerlord 1.3.15 + The Old Realms (TOR_Core v1.3.15).
 

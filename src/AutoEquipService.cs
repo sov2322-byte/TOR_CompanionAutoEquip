@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Helpers;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Inventory;
 using TaleWorlds.CampaignSystem.Roster;
@@ -53,7 +54,7 @@ namespace TOR_CompanionAutoEquip
                 return EquipResult.Fail("현재 장비 세트를 읽지 못했습니다.");
 
             Dictionary<EquipmentIndex, List<ArmorCandidate>> candidatesBySlot =
-                BuildCandidates(vm, currentEquipment, mode);
+                BuildCandidates(vm, currentEquipment, mode, character);
 
             Dictionary<EquipmentIndex, ArmorCandidate> plan = weightLimited
                 ? FindBestUnderWeight(candidatesBySlot)
@@ -162,7 +163,8 @@ namespace TOR_CompanionAutoEquip
         private static Dictionary<EquipmentIndex, List<ArmorCandidate>> BuildCandidates(
             SPInventoryVM vm,
             Equipment currentEquipment,
-            EquipmentModeSnapshot mode)
+            EquipmentModeSnapshot mode,
+            CharacterObject character)
         {
             Dictionary<EquipmentIndex, List<ArmorCandidate>> result =
                 ArmorSlots.ToDictionary(slot => slot, slot => new List<ArmorCandidate>());
@@ -177,8 +179,8 @@ namespace TOR_CompanionAutoEquip
                     AddIfUnique(result[slot], ArmorCandidate.FromCurrent(slot, current));
             }
 
-            AddPlayerInventoryCandidates(vm, vm.LeftItemListVM, result, mode);
-            AddPlayerInventoryCandidates(vm, vm.RightItemListVM, result, mode);
+            AddPlayerInventoryCandidates(vm.LeftItemListVM, result, mode, character);
+            AddPlayerInventoryCandidates(vm.RightItemListVM, result, mode, character);
 
             foreach (EquipmentIndex slot in ArmorSlots)
                 result[slot] = ParetoTrim(result[slot]);
@@ -187,10 +189,10 @@ namespace TOR_CompanionAutoEquip
         }
 
         private static void AddPlayerInventoryCandidates(
-            SPInventoryVM vm,
             IEnumerable<SPItemVM> itemList,
             Dictionary<EquipmentIndex, List<ArmorCandidate>> result,
-            EquipmentModeSnapshot mode)
+            EquipmentModeSnapshot mode,
+            CharacterObject character)
         {
             if (itemList == null)
                 return;
@@ -201,7 +203,11 @@ namespace TOR_CompanionAutoEquip
                     || itemVm.InventorySide != InventoryLogic.InventorySide.PlayerInventory
                     || itemVm.ItemRosterElement.IsEmpty
                     || itemVm.ItemCount <= 0
-                    || itemVm.IsLocked)
+                    || itemVm.IsLocked
+                    || !itemVm.IsTransferable
+                    || !itemVm.IsEquipableItem
+                    || itemVm.IsGenderDifferent
+                    || !itemVm.CanCharacterUseItem)
                     continue;
 
                 EquipmentElement element = itemVm.ItemRosterElement.EquipmentElement;
@@ -214,15 +220,8 @@ namespace TOR_CompanionAutoEquip
                 if (mode == EquipmentModeSnapshot.Stealth && !item.IsStealthItem)
                     continue;
 
-                try
-                {
-                    if (!vm.IsItemEquipmentPossible(itemVm))
-                        continue;
-                }
-                catch
-                {
+                if (!CharacterHelper.CanUseItemBasedOnSkill(character, element))
                     continue;
-                }
 
                 foreach (EquipmentIndex slot in ArmorSlots)
                 {
@@ -356,15 +355,32 @@ namespace TOR_CompanionAutoEquip
             return proposed.Changes < existing.Changes;
         }
 
-        private static int GetDefense(EquipmentElement element)
+        private static int GetDefense(EquipmentIndex slot, EquipmentElement element)
         {
             if (element.IsEmpty || element.Item == null)
                 return 0;
 
-            return element.GetModifiedHeadArmor()
-                 + element.GetModifiedBodyArmor()
-                 + element.GetModifiedArmArmor()
-                 + element.GetModifiedLegArmor();
+            // Match the armor value the player expects for each visible armor slot.
+            // This prevents, for example, a "helmet" with 0 head armor but body armor
+            // from beating a real helmet just because its cross-body total is larger.
+            switch (slot)
+            {
+                case EquipmentIndex.Head:
+                    return element.GetModifiedHeadArmor();
+                case EquipmentIndex.Body:
+                    return element.GetModifiedBodyArmor();
+                case EquipmentIndex.Gloves:
+                    return element.GetModifiedArmArmor();
+                case EquipmentIndex.Leg:
+                    return element.GetModifiedLegArmor();
+                case EquipmentIndex.Cape:
+                    return element.GetModifiedHeadArmor()
+                         + element.GetModifiedBodyArmor()
+                         + element.GetModifiedArmArmor()
+                         + element.GetModifiedLegArmor();
+                default:
+                    return 0;
+            }
         }
 
         private static void AddIfUnique(List<ArmorCandidate> list, ArmorCandidate candidate)
@@ -428,7 +444,7 @@ namespace TOR_CompanionAutoEquip
                 {
                     Slot = slot,
                     Element = element,
-                    Defense = GetDefense(element),
+                    Defense = GetDefense(slot, element),
                     Weight = element.GetEquipmentElementWeight(),
                     IsCurrent = true,
                     InventoryCount = 0

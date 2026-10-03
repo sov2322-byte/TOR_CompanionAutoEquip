@@ -16,6 +16,23 @@ namespace TOR_CompanionAutoEquip
         }
     }
 
+
+    [HarmonyPatch(typeof(SPInventoryVM), "UpdateCurrentCharacterIfPossible")]
+    internal static class SPInventoryVMCharacterSwitchPatch
+    {
+        private static void Postfix(SPInventoryVM __instance, bool __result)
+        {
+            if (!__result)
+                return;
+
+            // Character switching updates SPInventoryVM._currentCharacter inside this method.
+            // Refresh the overlay only after that assignment, so returning to a character
+            // restores that character's session lock indicators correctly.
+            InventoryVmTracker.Active = __instance;
+            InventoryOverlayPatch.RefreshLockState();
+        }
+    }
+
     [HarmonyPatch(typeof(GauntletInventoryScreen))]
     internal static class InventoryOverlayPatch
     {

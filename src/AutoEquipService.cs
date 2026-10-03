@@ -457,7 +457,7 @@ namespace TOR_CompanionAutoEquip
                 {
                     Slot = slot,
                     Element = element,
-                    Defense = GetDefense(element),
+                    Defense = GetDefense(slot, element),
                     Weight = element.GetEquipmentElementWeight(),
                     IsCurrent = false,
                     InventoryCount = count

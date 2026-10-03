@@ -85,18 +85,11 @@ namespace TOR_CompanionAutoEquip
 
                 if (target.Element.IsEmpty)
                 {
+                    // Safety guard. An occupied armor slot is never stripped by
+                    // either automatic-equip mode, even when it is not locked.
                     if (!current.IsEmpty)
-                    {
-                        commands.Add(TransferCommand.Transfer(
-                            amount: 1,
-                            fromSide: targetSide,
-                            toSide: InventoryLogic.InventorySide.PlayerInventory,
-                            elementToTransfer: new ItemRosterElement(current, 1),
-                            fromEquipmentIndex: slot,
-                            toEquipmentIndex: EquipmentIndex.None,
-                            character: character));
-                        changedSlots++;
-                    }
+                        return EquipResult.Fail("착용 중인 장비를 벗기는 조합은 적용하지 않았습니다.");
+
                     continue;
                 }
 
@@ -138,8 +131,7 @@ namespace TOR_CompanionAutoEquip
             string label = weightLimited ? "마법사용" : "최고 방어";
             return EquipResult.Ok(
                 string.Format(
-                    "{0} · {1} · {2}: 방어도 {3}, 방어구 무게 {4:0.00}, 변경 {5}부위",
-                    character.Name,
+                    "{0} / {1} / 방어 {2} / 무게 {3:0.0} / {4}부위",
                     modeText,
                     label,
                     totalDefense,
@@ -169,18 +161,33 @@ namespace TOR_CompanionAutoEquip
             Dictionary<EquipmentIndex, List<ArmorCandidate>> result =
                 ArmorSlots.ToDictionary(slot => slot, slot => new List<ArmorCandidate>());
 
-            foreach (EquipmentIndex slot in ArmorSlots)
-                result[slot].Add(ArmorCandidate.Empty(slot, currentEquipment[slot].IsEmpty));
+            Hero hero = character.HeroObject;
 
             foreach (EquipmentIndex slot in ArmorSlots)
             {
                 EquipmentElement current = currentEquipment[slot];
-                if (!current.IsEmpty && current.Item != null && current.Item.HasArmorComponent)
+                bool locked = SlotLockRegistry.IsLocked(hero, mode, slot);
+
+                if (current.IsEmpty)
+                {
+                    // Empty remains available only when the slot was already empty.
+                    result[slot].Add(ArmorCandidate.Empty(slot, true));
+                }
+                else
+                {
+                    // Current equipment is always a candidate. This guarantees that
+                    // automatic equip can replace worn armor, but never strip it.
                     AddIfUnique(result[slot], ArmorCandidate.FromCurrent(slot, current));
+                }
+
+                // Locked means "do not replace". The current item/empty state above
+                // is the only candidate for this slot.
+                if (locked)
+                    continue;
             }
 
-            AddPlayerInventoryCandidates(vm.LeftItemListVM, result, mode, character);
-            AddPlayerInventoryCandidates(vm.RightItemListVM, result, mode, character);
+            AddPlayerInventoryCandidates(vm.LeftItemListVM, result, mode, character, hero);
+            AddPlayerInventoryCandidates(vm.RightItemListVM, result, mode, character, hero);
 
             foreach (EquipmentIndex slot in ArmorSlots)
                 result[slot] = ParetoTrim(result[slot]);
@@ -192,7 +199,8 @@ namespace TOR_CompanionAutoEquip
             IEnumerable<SPItemVM> itemList,
             Dictionary<EquipmentIndex, List<ArmorCandidate>> result,
             EquipmentModeSnapshot mode,
-            CharacterObject character)
+            CharacterObject character,
+            Hero hero)
         {
             if (itemList == null)
                 return;
@@ -225,6 +233,9 @@ namespace TOR_CompanionAutoEquip
 
                 foreach (EquipmentIndex slot in ArmorSlots)
                 {
+                    if (SlotLockRegistry.IsLocked(hero, mode, slot))
+                        continue;
+
                     if (!Equipment.IsItemFitsToSlot(slot, item))
                         continue;
 

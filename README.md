@@ -1,4 +1,4 @@
-# TOR Companion Auto Equip v0.2.1
+# TOR Companion Auto Equip v0.2.2
 
 Target: Mount & Blade II: Bannerlord 1.3.15 + The Old Realms (TOR_Core v1.3.15).
 
@@ -26,3 +26,10 @@ Bannerlord.Harmony와 TOR_Core 뒤에 로드하세요.
 
 ## 빌드 비용 안전장치
 CI는 공개 저장소일 때만 표준 `windows-latest` 러너를 요청합니다. 저장소가 private이면 job 자체가 skip됩니다.
+
+## v0.2.2
+- 드래그 이동은 사용하지 않습니다.
+- 하단 버튼을 작게 축소: 왼쪽 '최고 방어구', 오른쪽 '마법사 ≤10'.
+- 머리/망토/몸/손/발 슬롯별 세션 잠금을 추가했습니다. 체크된 슬롯은 자동장착이 교체하지 않습니다.
+- 잠금이 꺼져 있어도 이미 착용 중인 방어구를 빈칸으로 벗기는 것은 금지합니다. 더 좋은 장비로 교체는 가능합니다.
+- 잠금 상태는 세이브에 기록하지 않고 게임 실행 중에만 유지합니다.

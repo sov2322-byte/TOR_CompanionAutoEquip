@@ -12,6 +12,7 @@ namespace TOR_CompanionAutoEquip
         private static void Postfix(SPInventoryVM __instance)
         {
             InventoryVmTracker.Active = __instance;
+            InventoryOverlayPatch.RefreshLockState();
         }
     }
 
@@ -23,6 +24,12 @@ namespace TOR_CompanionAutoEquip
 
         private static GauntletLayer _layer;
         private static AutoEquipOverlayVM _viewModel;
+
+        internal static void RefreshLockState()
+        {
+            if (_viewModel != null)
+                _viewModel.RefreshLockState();
+        }
 
         [HarmonyPostfix]
         [HarmonyPatch("OnInitialize")]
@@ -38,6 +45,7 @@ namespace TOR_CompanionAutoEquip
                 _layer.InputRestrictions.SetInputRestrictions();
                 _layer.LoadMovie(PrefabName, _viewModel);
                 __instance.AddLayer(_layer);
+                _viewModel.RefreshLockState();
             }
             catch
             {

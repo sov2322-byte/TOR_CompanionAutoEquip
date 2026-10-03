@@ -5,65 +5,163 @@
             HeightSizePolicy="StretchToParent"
             DoNotAcceptEvents="true">
       <Children>
+
+        <TextWidget WidthSizePolicy="Fixed"
+                    HeightSizePolicy="Fixed"
+                    SuggestedWidth="360"
+                    SuggestedHeight="16"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Bottom"
+                    PositionYOffset="-118"
+                    Text="@StatusText"
+                    Brush="ButtonBrush1.Text"
+                    Brush.FontSize="12"
+                    Brush.TextHorizontalAlignment="Center"
+                    Brush.TextVerticalAlignment="Center"
+                    DoNotAcceptEvents="true" />
+
+        <!-- Session-only armor-slot locks. Selected checkbox = locked. -->
         <ListPanel WidthSizePolicy="Fixed"
-                   HeightSizePolicy="CoverChildren"
-                   SuggestedWidth="315"
+                   HeightSizePolicy="Fixed"
+                   SuggestedWidth="300"
+                   SuggestedHeight="22"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Bottom"
-                   MarginLeft="-300"
-                   MarginBottom="82"
-                   LayoutImp.LayoutMethod="VerticalBottomToTop">
+                   PositionYOffset="-98"
+                   LayoutImp.LayoutMethod="HorizontalLeftToRight">
           <Children>
-            <TextWidget WidthSizePolicy="StretchToParent"
-                        HeightSizePolicy="Fixed"
-                        SuggestedHeight="24"
-                        MarginTop="4"
-                        Text="@StatusText"
-                        Brush="ButtonBrush1.Text"
+            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed"
+                        SuggestedWidth="42" SuggestedHeight="22"
+                        Text="잠금" Brush="ButtonBrush1.Text" Brush.FontSize="12"
+                        Brush.TextHorizontalAlignment="Center"
+                        Brush.TextVerticalAlignment="Center"
                         DoNotAcceptEvents="true" />
 
-            <ButtonWidget Id="MageAutoEquipButton"
-                          WidthSizePolicy="StretchToParent"
-                          HeightSizePolicy="Fixed"
-                          SuggestedHeight="42"
-                          MarginTop="6"
-                          Brush="ButtonBrush1"
-                          Command.Click="ExecuteMageDefense"
-                          IsEnabled="true"
-                          AcceptEvents="true"
+            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="18" SuggestedHeight="22"
+                        Text="머" Brush="ButtonBrush1.Text" Brush.FontSize="11"
+                        Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" DoNotAcceptEvents="true" />
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="20"
+                          Brush="SPOptions.Checkbox.Empty.Button" ButtonType="Toggle"
+                          IsSelected="@HeadLocked" ToggleIndicator="ToggleIndicator"
+                          UpdateChildrenStates="true" Command.Click="ExecuteToggleHead"
                           DoNotPassEventsToChildren="true">
               <Children>
-                <TextWidget WidthSizePolicy="StretchToParent"
-                            HeightSizePolicy="StretchToParent"
-                            Text="@MageDefenseText"
-                            Brush="ButtonBrush1.Text"
-                            DoNotAcceptEvents="true"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center" />
+                <BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                             Brush="SPOptions.Checkbox.Full.Button" />
               </Children>
             </ButtonWidget>
 
-            <ButtonWidget Id="MaxDefenseAutoEquipButton"
-                          WidthSizePolicy="StretchToParent"
-                          HeightSizePolicy="Fixed"
-                          SuggestedHeight="42"
-                          Brush="ButtonBrush1"
-                          Command.Click="ExecuteMaxDefense"
-                          IsEnabled="true"
-                          AcceptEvents="true"
+            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="18" SuggestedHeight="22"
+                        Text="망" Brush="ButtonBrush1.Text" Brush.FontSize="11"
+                        Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" DoNotAcceptEvents="true" />
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="20"
+                          Brush="SPOptions.Checkbox.Empty.Button" ButtonType="Toggle"
+                          IsSelected="@CapeLocked" ToggleIndicator="ToggleIndicator"
+                          UpdateChildrenStates="true" Command.Click="ExecuteToggleCape"
                           DoNotPassEventsToChildren="true">
               <Children>
-                <TextWidget WidthSizePolicy="StretchToParent"
-                            HeightSizePolicy="StretchToParent"
-                            Text="@MaxDefenseText"
-                            Brush="ButtonBrush1.Text"
-                            DoNotAcceptEvents="true"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center" />
+                <BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                             Brush="SPOptions.Checkbox.Full.Button" />
+              </Children>
+            </ButtonWidget>
+
+            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="18" SuggestedHeight="22"
+                        Text="몸" Brush="ButtonBrush1.Text" Brush.FontSize="11"
+                        Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" DoNotAcceptEvents="true" />
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="20"
+                          Brush="SPOptions.Checkbox.Empty.Button" ButtonType="Toggle"
+                          IsSelected="@BodyLocked" ToggleIndicator="ToggleIndicator"
+                          UpdateChildrenStates="true" Command.Click="ExecuteToggleBody"
+                          DoNotPassEventsToChildren="true">
+              <Children>
+                <BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                             Brush="SPOptions.Checkbox.Full.Button" />
+              </Children>
+            </ButtonWidget>
+
+            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="18" SuggestedHeight="22"
+                        Text="손" Brush="ButtonBrush1.Text" Brush.FontSize="11"
+                        Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" DoNotAcceptEvents="true" />
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="20"
+                          Brush="SPOptions.Checkbox.Empty.Button" ButtonType="Toggle"
+                          IsSelected="@GlovesLocked" ToggleIndicator="ToggleIndicator"
+                          UpdateChildrenStates="true" Command.Click="ExecuteToggleGloves"
+                          DoNotPassEventsToChildren="true">
+              <Children>
+                <BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                             Brush="SPOptions.Checkbox.Full.Button" />
+              </Children>
+            </ButtonWidget>
+
+            <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="18" SuggestedHeight="22"
+                        Text="발" Brush="ButtonBrush1.Text" Brush.FontSize="11"
+                        Brush.TextHorizontalAlignment="Center" Brush.TextVerticalAlignment="Center" DoNotAcceptEvents="true" />
+            <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="20" SuggestedHeight="20"
+                          Brush="SPOptions.Checkbox.Empty.Button" ButtonType="Toggle"
+                          IsSelected="@LegLocked" ToggleIndicator="ToggleIndicator"
+                          UpdateChildrenStates="true" Command.Click="ExecuteToggleLeg"
+                          DoNotPassEventsToChildren="true">
+              <Children>
+                <BrushWidget Id="ToggleIndicator" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent"
+                             Brush="SPOptions.Checkbox.Full.Button" />
               </Children>
             </ButtonWidget>
           </Children>
         </ListPanel>
+
+        <!-- Fixed compact buttons: left and right. -->
+        <ButtonWidget Id="MaxDefenseAutoEquipButton"
+                      WidthSizePolicy="Fixed"
+                      HeightSizePolicy="Fixed"
+                      SuggestedWidth="150"
+                      SuggestedHeight="28"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Bottom"
+                      PositionXOffset="-85"
+                      PositionYOffset="-66"
+                      Brush="ButtonBrush1"
+                      Command.Click="ExecuteMaxDefense"
+                      IsEnabled="true"
+                      AcceptEvents="true"
+                      DoNotPassEventsToChildren="true">
+          <Children>
+            <TextWidget WidthSizePolicy="StretchToParent"
+                        HeightSizePolicy="StretchToParent"
+                        Text="@MaxDefenseText"
+                        Brush="ButtonBrush1.Text"
+                        Brush.FontSize="14"
+                        Brush.TextHorizontalAlignment="Center"
+                        Brush.TextVerticalAlignment="Center"
+                        DoNotAcceptEvents="true" />
+          </Children>
+        </ButtonWidget>
+
+        <ButtonWidget Id="MageAutoEquipButton"
+                      WidthSizePolicy="Fixed"
+                      HeightSizePolicy="Fixed"
+                      SuggestedWidth="150"
+                      SuggestedHeight="28"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Bottom"
+                      PositionXOffset="85"
+                      PositionYOffset="-66"
+                      Brush="ButtonBrush1"
+                      Command.Click="ExecuteMageDefense"
+                      IsEnabled="true"
+                      AcceptEvents="true"
+                      DoNotPassEventsToChildren="true">
+          <Children>
+            <TextWidget WidthSizePolicy="StretchToParent"
+                        HeightSizePolicy="StretchToParent"
+                        Text="@MageDefenseText"
+                        Brush="ButtonBrush1.Text"
+                        Brush.FontSize="14"
+                        Brush.TextHorizontalAlignment="Center"
+                        Brush.TextVerticalAlignment="Center"
+                        DoNotAcceptEvents="true" />
+          </Children>
+        </ButtonWidget>
+
       </Children>
     </Widget>
   </Window>

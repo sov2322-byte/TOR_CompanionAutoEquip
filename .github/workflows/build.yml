@@ -1,0 +1,67 @@
+name: Build installable mod
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'Module/bin/**'
+      - 'dist/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build:
+    # Cost guard: never request a hosted runner if this repository becomes private.
+    if: ${{ github.event.repository.private == false }}
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore src/TOR_CompanionAutoEquip.csproj
+
+      - name: Build
+        run: dotnet build src/TOR_CompanionAutoEquip.csproj -c Release --no-restore
+
+      - name: Verify and package
+        shell: pwsh
+        run: |
+          $dll = "Module/bin/Win64_Shipping_Client/TOR_CompanionAutoEquip.dll"
+          if (!(Test-Path $dll)) { throw "DLL was not produced: $dll" }
+          [xml](Get-Content "Module/SubModule.xml" -Raw) | Out-Null
+          [xml](Get-Content "Module/GUI/Prefabs/TORAutoEquipOverlay.xml" -Raw) | Out-Null
+
+          Remove-Item package -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item dist -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path package/TOR_CompanionAutoEquip | Out-Null
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item Module/SubModule.xml package/TOR_CompanionAutoEquip/SubModule.xml
+          Copy-Item Module/GUI package/TOR_CompanionAutoEquip/GUI -Recurse
+          Copy-Item Module/bin package/TOR_CompanionAutoEquip/bin -Recurse
+          Compress-Archive -Path package/TOR_CompanionAutoEquip -DestinationPath dist/TOR_CompanionAutoEquip_v0.2.0.zip -Force
+
+      - name: Commit compiled DLL and installable ZIP
+        shell: pwsh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Module/bin/Win64_Shipping_Client/TOR_CompanionAutoEquip.dll dist/TOR_CompanionAutoEquip_v0.2.0.zip
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "No compiled output changes to commit."
+            exit 0
+          }
+          git commit -m "build: compile installable mod [skip ci]"
+          git push

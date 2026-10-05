@@ -42,3 +42,5 @@ jobs:
           echo "===== MUTATION REPLACE LOGIC (compiled DLL decompile) ====="
           grep -n -A45 -B15 "OperationType.Replace" inspect/CareerChoiceObject.decompiled.cs || true
           grep -n -A45 -B15 "ReturnType" inspect/CareerChoiceObject.decompiled.cs || true
+
+# trigger

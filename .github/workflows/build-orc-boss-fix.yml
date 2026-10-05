@@ -17,7 +17,6 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-        with:
 
       - name: Checkout TOR WITM1.12
         run: git clone --depth 1 --branch WITM1.12 https://github.com/TheOldRealms/TOR_Core.git external/TOR_Core
@@ -51,4 +50,4 @@ jobs:
           git add OrcBossFix/Module/bin/Win64_Shipping_Client/TOR_OrcBossTwoHandFix.dll OrcBossFix/dist/TOR_OrcBossTwoHandFix_v1.0.0.zip
           if git diff --cached --quiet; then exit 0; fi
           git commit -m "build: Orc Boss fix v1.0.0 [skip ci]"
-          git push origin HEAD:orc-boss-twohand-fix
+          git push origin HEAD:main

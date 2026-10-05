@@ -2,7 +2,7 @@ name: Build Orc Boss Two-Hand Fix
 
 on:
   push:
-    branches: [ orc-boss-twohand-fix ]
+    branches: [ main ]
     paths:
       - 'OrcBossFix/**'
       - '.github/workflows/build-orc-boss-fix.yml'
@@ -18,7 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: orc-boss-twohand-fix
 
       - name: Checkout TOR WITM1.12
         run: git clone --depth 1 --branch WITM1.12 https://github.com/TheOldRealms/TOR_Core.git external/TOR_Core

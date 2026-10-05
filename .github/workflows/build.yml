@@ -17,7 +17,7 @@ env:
 
 jobs:
   build:
-    # Cost guard: never request a hosted runner if this repository becomes private.
+    # Cost guard: never request a hosted runner if this repository becomes private. Orc Boss fix also builds here.
     if: ${{ github.event.repository.private == false }}
     runs-on: windows-latest
     timeout-minutes: 10

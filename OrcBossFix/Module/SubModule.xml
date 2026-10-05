@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Module>
+  <Name value="TOR Orc Boss Two-Hand Fix" />
+  <Id value="TOR_OrcBossTwoHandFix" />
+  <Version value="v1.0.0" />
+  <ModuleCategory value="Singleplayer" />
+  <DependedModules>
+    <DependedModule Id="Bannerlord.Harmony" />
+    <DependedModule Id="Native" DependentVersion="v1.3.15" />
+    <DependedModule Id="SandBoxCore" DependentVersion="v1.3.15" />
+    <DependedModule Id="Sandbox" DependentVersion="v1.3.15" />
+    <DependedModule Id="TOR_Core" DependentVersion="v1.3.15" />
+  </DependedModules>
+  <SubModules>
+    <SubModule>
+      <Name value="TOR Orc Boss Two-Hand Fix" />
+      <DLLName value="TOR_OrcBossTwoHandFix.dll" />
+      <SubModuleClassType value="TOR_OrcBossTwoHandFix.SubModule" />
+      <Tags>
+        <Tag key="DedicatedServerType" value="none" />
+        <Tag key="IsNoRenderModeElement" value="false" />
+      </Tags>
+    </SubModule>
+  </SubModules>
+</Module>

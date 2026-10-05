@@ -1,0 +1,55 @@
+name: Build Orc Boss Two-Hand Fix
+
+on:
+  push:
+    branches: [ orc-boss-twohand-fix ]
+    paths:
+      - 'OrcBossFix/**'
+      - '.github/workflows/build-orc-boss-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    if: ${{ github.event.repository.private == false && !contains(github.event.head_commit.message, '[skip ci]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: orc-boss-twohand-fix
+
+      - name: Checkout TOR WITM1.12
+        run: git clone --depth 1 --branch WITM1.12 https://github.com/TheOldRealms/TOR_Core.git external/TOR_Core
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build
+        run: |
+          dotnet restore OrcBossFix/src/TOR_OrcBossTwoHandFix.csproj
+          dotnet build OrcBossFix/src/TOR_OrcBossTwoHandFix.csproj -c Release --no-restore
+
+      - name: Package
+        shell: pwsh
+        run: |
+          $dll = "OrcBossFix/Module/bin/Win64_Shipping_Client/TOR_OrcBossTwoHandFix.dll"
+          if (!(Test-Path $dll)) { throw "DLL not produced" }
+          Remove-Item OrcBossFix/package -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force OrcBossFix/package/TOR_OrcBossTwoHandFix | Out-Null
+          Copy-Item OrcBossFix/Module/SubModule.xml OrcBossFix/package/TOR_OrcBossTwoHandFix/SubModule.xml
+          Copy-Item OrcBossFix/Module/bin OrcBossFix/package/TOR_OrcBossTwoHandFix/bin -Recurse
+          New-Item -ItemType Directory -Force OrcBossFix/dist | Out-Null
+          Compress-Archive -Path OrcBossFix/package/TOR_OrcBossTwoHandFix -DestinationPath OrcBossFix/dist/TOR_OrcBossTwoHandFix_v1.0.0.zip -Force
+
+      - name: Commit output
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add OrcBossFix/Module/bin/Win64_Shipping_Client/TOR_OrcBossTwoHandFix.dll OrcBossFix/dist/TOR_OrcBossTwoHandFix_v1.0.0.zip
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "build: Orc Boss fix v1.0.0 [skip ci]"
+          git push origin HEAD:orc-boss-twohand-fix

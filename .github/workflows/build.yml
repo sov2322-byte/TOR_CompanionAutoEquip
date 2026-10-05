@@ -35,12 +35,6 @@ jobs:
       - name: Build companion auto-equip
         run: dotnet build src/TOR_CompanionAutoEquip.csproj -c Release --no-restore
 
-      - name: Checkout TOR WITM1.12 reference
-        shell: pwsh
-        run: |
-          if (Test-Path external/TOR_Core) { Remove-Item external/TOR_Core -Recurse -Force }
-          git clone --depth 1 --branch WITM1.12 https://github.com/TheOldRealms/TOR_Core.git external/TOR_Core
-
       - name: Restore Orc Boss fix
         run: dotnet restore OrcBossFix/src/TOR_OrcBossTwoHandFix.csproj
 
@@ -86,4 +80,5 @@ jobs:
             exit 0
           }
           git commit -m "build: compile installable mod [skip ci]"
-          git push
+          git pull --rebase origin main
+          git push origin HEAD:main

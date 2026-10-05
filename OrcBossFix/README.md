@@ -10,3 +10,5 @@ The patch only intervenes when TOR's original Replace mutation failed and left D
 It does not change the base 50 damage, one-handed slow, two-handed -25% Physical Resistance debuff, polearm dismount effect, or any other career perk.
 
 Build target verified against WITM1.12 tag TOR_Core.dll.
+
+Build workflow enabled on main.

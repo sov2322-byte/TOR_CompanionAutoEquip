@@ -12,3 +12,5 @@ It does not change the base 50 damage, one-handed slow, two-handed -25% Physical
 Build target verified against WITM1.12 tag TOR_Core.dll.
 
 Build workflow enabled on main.
+
+CI retry after workflow syntax fix.

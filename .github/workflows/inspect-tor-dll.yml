@@ -1,0 +1,44 @@
+name: Inspect TOR WITM1.12 DLL
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/inspect-tor-dll.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    if: ${{ github.event.repository.private == false }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout upstream TOR WITM1.12
+        run: |
+          git clone --depth 1 --branch WITM1.12 https://github.com/TheOldRealms/TOR_Core.git upstream
+
+      - name: Install ILSpy command line
+        run: dotnet tool install --global ilspycmd
+
+      - name: Decompile Orc Boss and mutation code
+        run: |
+          mkdir -p inspect
+          ~/.dotnet/tools/ilspycmd             -t TOR_Core.CharacterDevelopment.CareerSystem.Choices.OrcBossCareerChoices             upstream/bin/Win64_Shipping_Client/TOR_Core.dll             > inspect/OrcBossCareerChoices.decompiled.cs
+
+          ~/.dotnet/tools/ilspycmd             -t TOR_Core.CharacterDevelopment.CareerSystem.CareerChoiceObject             upstream/bin/Win64_Shipping_Client/TOR_Core.dll             > inspect/CareerChoiceObject.decompiled.cs
+
+      - name: Print relevant compiled code
+        shell: bash
+        run: |
+          echo "===== DLL SHA256 ====="
+          sha256sum upstream/bin/Win64_Shipping_Client/TOR_Core.dll
+          echo
+          echo "===== TWO-HANDED KEYSTONE (compiled DLL decompile) ====="
+          grep -n -A22 -B10 "twoHandedSkill" inspect/OrcBossCareerChoices.decompiled.cs || true
+          grep -n -A28 -B10 "DefaultSkills.TwoHanded" inspect/OrcBossCareerChoices.decompiled.cs || true
+          echo
+          echo "===== MUTATION REPLACE LOGIC (compiled DLL decompile) ====="
+          grep -n -A45 -B15 "OperationType.Replace" inspect/CareerChoiceObject.decompiled.cs || true
+          grep -n -A45 -B15 "ReturnType" inspect/CareerChoiceObject.decompiled.cs || true
